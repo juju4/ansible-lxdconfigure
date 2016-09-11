@@ -1,0 +1,31 @@
+---
+
+- name: ensure lxd service is started and enabled
+  service: name=lxd state=started enabled=yes
+
+- name: list existing lxc images
+  command: "lxc image list"
+  changed_when: false
+  register: imagelist
+- name: pre copy lxc images
+  include: "lxc-image-copy.yml current={{ imagelist }} image={{ item.i }} alias={{ item.alias }}"
+  with_items: "{{ lxd_preloadimages }}"
+
+- name: list existing lxc images
+  command: "lxc image list"
+  changed_when: false
+  register: imagelist2
+- name: list existing lxc instances
+  command: "lxc list"
+  changed_when: false
+  register: lxclist
+
+- block:
+    - debug: var=lxd_preconfigure
+    - name: pre-configure lxc images
+      include: "lxd-preconfigure.yml imagelist={{ imagelist2 }} lxclist={{ lxclist }} guest={{ outer_item.guest }} template={{ outer_item.template }} publishalias={{ outer_item.publishalias }} shellcmds={{ outer_item.shellcmds }}"
+      with_items: "{{ lxd_preconfigure }}"
+      loop_control:
+        loop_var: outer_item
+  when: lxd_preconfigure is defined and lxd_preconfigure != '' and lxd_preconfigure != []
+

@@ -1,0 +1,49 @@
+---
+
+lxd_preloadimages:
+    - { i: 'ubuntu:16.04', alias: 'ubuntu-16.04-nopython' }
+    - { i: 'ubuntu:14.04', alias: 'ubuntu-14.04' }
+    - { i: 'ubuntu:12.04', alias: 'ubuntu-12.04' }
+    - { i: 'images:/centos/7/amd64', alias: 'centos-7-nossh' }
+    - { i: 'images:/centos/6/amd64', alias: 'centos-6-nossh' }
+    - { i: 'images:/alpine/3.4/amd64', alias: 'alpine-3.4-nossh' }
+
+## packages are the ones necessary for kitchen+ansible
+lxd_preconfigure: [
+        { guest: 'default-ubuntu-1604', template: 'ubuntu-16.04-nopython', publishalias: 'ubuntu-16.04', shellcmds: [
+            "dhclient eth0",
+            "ping -c 1 8.8.8.8",
+            "apt-get install -y python"
+            ]
+        },
+        { guest: 'default-centos-7', template: 'centos-7-nossh', publishalias: 'centos-7', shellcmds: [
+            "dhclient eth0",
+            "ping -c 1 8.8.8.8",
+            "yum install -y openssh-server sudo",
+            "systemctl enable sshd",
+            "systemctl start sshd",
+            "mkdir /root/.ssh",
+            ]
+        },
+        { guest: 'default-centos-6', template: 'centos-6-nossh', publishalias: 'centos-6', shellcmds: [
+            "dhclient eth0",
+            "ping -c 1 8.8.8.8",
+            "yum install -y openssh-server sudo",
+            "chkconfig sshd on",
+            "service sshd start",
+            "mkdir /root/.ssh",
+            ]
+        },
+        { guest: 'default-alpine-34', template: 'alpine-3.4-nossh', publishalias: 'alpine-3.4', shellcmds: [
+            "sleep 10",
+            "ping -c 1 8.8.8.8",
+            "apk add openssh sudo wget python ca-certificates bash ansible",
+            "rc-update add sshd",
+            "/etc/init.d/sshd start",
+            "mkdir /root/.ssh",
+            "sed -i '$ a\\none /dev/shm tmpfs defaults,nodev,nosuid,noexec,mode=1777 0 0' /etc/fstab",
+            "mkdir /dev/shm",
+            "mount /dev/shm",
+            ]
+        }
+    ]
