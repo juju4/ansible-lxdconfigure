@@ -1,5 +1,5 @@
 ---
-## when Ansible 2.2.0 released: use lxd_container module
+## FIXME! when Ansible 2.2.0 released: use lxd_container module
 
 - block:
     - name: start lxc instance {{ guest }}

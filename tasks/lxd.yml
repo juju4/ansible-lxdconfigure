@@ -18,12 +18,12 @@
 - name: list existing lxc instances
   command: "lxc list"
   changed_when: false
-  register: lxclist
+  register: lxclist2
 
 - block:
     - debug: var=lxd_preconfigure
     - name: pre-configure lxc images
-      include: "lxd-preconfigure.yml imagelist={{ imagelist2 }} lxclist={{ lxclist }} guest={{ outer_item.guest }} template={{ outer_item.template }} publishalias={{ outer_item.publishalias }} shellcmds={{ outer_item.shellcmds }}"
+      include: "lxd-preconfigure.yml imagelist={{ imagelist2 }} lxclist={{ lxclist2 }} guest={{ outer_item.guest }} template={{ outer_item.template }} publishalias={{ outer_item.publishalias }} shellcmds={{ outer_item.shellcmds }}"
       with_items: "{{ lxd_preconfigure }}"
       loop_control:
         loop_var: outer_item

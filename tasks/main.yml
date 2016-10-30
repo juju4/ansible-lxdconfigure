@@ -1,8 +1,10 @@
 ---
 
 - debug: var=ansible_env
+- debug: var=ansible_virtualization_type
 - include: travis.yml
   when: ansible_env['TRAVIS'] is defined and ansible_env['TRAVIS'] == 'true'
 
 - include: lxd.yml
-  when: (ansible_virtualization_type is not defined or not (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "kvm"))
+#  when: (ansible_virtualization_type is not defined or not (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "kvm"))
+  when: (ansible_virtualization_type is not defined or not (ansible_virtualization_type == "lxc"))

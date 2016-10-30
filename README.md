@@ -50,6 +50,10 @@ $ vagrant ssh
 
 ## Troubleshooting & Known issues
 
+* virtualization detection issue with ansible < 2.2.0
+lxc might appears as kvm for example.
+https://github.com/ansible/ansible/issues/17030
+https://github.com/ansible/ansible/issues/17151
 
 ## License
 

@@ -5,7 +5,8 @@
 - set_fact:
     certificate_cn: "{{ ansible_fqdn }}"
 
-- set_fact:
+- name: check if executing on travis
+  set_fact:
     certificate_cn: "testing-travis.internal"
     travisci: true
     lxd_preloadimages:
