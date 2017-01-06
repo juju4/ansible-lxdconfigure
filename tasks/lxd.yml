@@ -23,7 +23,7 @@
 - block:
     - debug: var=lxd_preconfigure
     - name: pre-configure lxc images
-      include: "lxd-preconfigure.yml imagelist={{ imagelist2 }} lxclist={{ lxclist2 }} guest={{ outer_item.guest }} template={{ outer_item.template }} publishalias={{ outer_item.publishalias }} privileged={{ outer_item.privileged }} shellcmds={{ outer_item.shellcmds }}"
+      include: "lxd-preconfigure.yml imagelist={{ imagelist2 }} lxclist={{ lxclist2 }} guest={{ outer_item.guest | default('') }} template={{ outer_item.template | default('') }} publishalias={{ outer_item.publishalias | default('') }} privileged={{ outer_item.privileged | default('') }} shellcmds={{ outer_item.shellcmds | default('') }}"
       with_items: "{{ lxd_preconfigure }}"
       loop_control:
         loop_var: outer_item
