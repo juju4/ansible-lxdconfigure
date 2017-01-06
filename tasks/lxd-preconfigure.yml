@@ -11,7 +11,14 @@
 ##  --stdin not supported on xenial
 #        - "openssl rand -base64 48 | lxc exec {{ guest }} -- passwd root --stdin"
         - "openssl rand -base64 48 | perl -ne 'print \"$_\" x2' | lxc exec {{ guest }} -- passwd root"
-      when: lxclist.stdout.find(" {{ guest }} ") == -1
+      when: lxclist.stdout.find(" {{ guest }} ") == -1 and not privileged
+    - name: start lxc instance {{ guest }} - privileged
+      shell: "{{ item }}"
+      with_items:
+        - "lxc init -c security.privileged=true {{ template }} {{ guest }}"
+        - "lxc start {{ guest }}"
+        - "openssl rand -base64 48 | perl -ne 'print \"$_\" x2' | lxc exec {{ guest }} -- passwd root"
+      when: lxclist.stdout.find(" {{ guest }} ") == -1 and privileged
 
     - name: configure lxc instance {{ guest }}
       shell: "lxc exec {{ guest }} -- {{ item }}"

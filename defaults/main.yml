@@ -7,68 +7,100 @@ lxd_preloadimages:
     - { i: 'images:centos/7/amd64', alias: 'centos-7-nossh' }
     - { i: 'images:centos/6/amd64', alias: 'centos-6-nossh' }
     - { i: 'images:fedora/24/amd64', alias: 'fedora-24-nossh' }
+    - { i: 'images:debian/jessie/amd64', alias: 'debian-jessie-nossh' }
     - { i: 'images:ubuntu/yakkety/amd64', alias: 'ubuntu-yakkety-nossh' }
     - { i: 'images:alpine/3.4/amd64', alias: 'alpine-3.4-nossh' }
 
 ## packages are the ones necessary for kitchen+ansible
 lxd_preconfigure: [
-        { guest: 'default-ubuntu-1604', template: 'ubuntu-16.04-nopython', publishalias: 'ubuntu-16.04', shellcmds: [
+        { guest: 'default-ubuntu-1604', template: 'ubuntu-16.04-nopython', publishalias: 'ubuntu-16.04', privileged: false, shellcmds: [
             "dhclient eth0",
             "ping -c 1 8.8.8.8",
+## Job for iscsid.service failed because a configured resource limit was exceeded. See \"systemctl status iscsid.service\" and \"journalctl -xe\" for details.\r\ninvoke-rc.d: initscript iscsid, action \"restart\" failed.
+## https://bugs.launchpad.net/ubuntu/+source/juju-core/+bug/1571082
+            "apt-get -y remove open-iscsi",
+            "apt-get update",
+            'env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" upgrade',
             "apt-get install -y python ruby ruby-dev",
             "gem install busser",
             ]
         },
-        { guest: 'default-ubuntu-yakkety', template: 'ubuntu-yakkety-nossh', publishalias: 'ubuntu-yakkety', shellcmds: [
+        { guest: 'default-ubuntu-yakkety', template: 'ubuntu-yakkety-nossh', publishalias: 'ubuntu-yakkety', privileged: false, shellcmds: [
             "dhclient eth0",
             "ping -c 1 8.8.8.8",
+            "apt-get update",
+            'env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" upgrade',
             "apt-get install -y python openssh-server sudo ruby ruby-dev",
-            "mkdir /root/.ssh",
+            "mkdir /root/.ssh || true",
             "gem install busser",
             ]
         },
-        { guest: 'default-centos-7', template: 'centos-7-nossh', publishalias: 'centos-7', shellcmds: [
+        { guest: 'default-centos-7', template: 'centos-7-nossh', publishalias: 'centos-7', privileged: false, shellcmds: [
             "dhclient eth0",
             "ping -c 1 8.8.8.8",
+            "yum update",
+            "yum -y upgrade",
             "yum install -y openssh-server sudo ruby",
             "systemctl enable sshd",
             "systemctl start sshd",
-            "mkdir /root/.ssh",
+            "mkdir /root/.ssh || true",
             "gem install busser",
             ]
         },
-        { guest: 'default-centos-6', template: 'centos-6-nossh', publishalias: 'centos-6', shellcmds: [
-            "dhclient eth0",
+        { guest: 'default-centos-6', template: 'centos-6-nossh', publishalias: 'centos-6', privileged: false, shellcmds: [
+#            "dhclient eth0",
+            "dhclient eth0 || true",
             "ping -c 1 8.8.8.8",
+            "yum update",
+            "yum -y upgrade",
             "yum install -y openssh-server sudo ruby",
             "chkconfig sshd on",
             "service sshd start",
-            "mkdir /root/.ssh",
+            "mkdir /root/.ssh || true",
+#            "gem install busser",
+            ]
+        },
+## https://github.com/lxc/lxd/issues/1911, need privileged for systemd
+        { guest: 'default-jessie', template: 'debian-jessie-nossh', publishalias: 'debian-jessie', privileged: true, shellcmds: [
+            "dhclient eth0",
+            "apt-get update",
+            'env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" upgrade',
+            "apt-get install -y python openssh-server sudo ruby ruby-dev inetutils-tools inetutils-ping",
+## ping not found by default, need inetutils-tools inetutils-ping
+            "ping -c 1 8.8.8.8",
+            "mkdir /root/.ssh || true",
             "gem install busser",
             ]
         },
-        { guest: 'default-fedora-24', template: 'fedora-24-nossh', publishalias: 'fedora-24', shellcmds: [
-            "dhclient eth0",
+## https://github.com/ansible/ansible-modules-core/issues/5582
+        { guest: 'default-fedora-24', template: 'fedora-24-nossh', publishalias: 'fedora-24', privileged: false, shellcmds: [
+            "dhclient eth0 || true",
+            "sleep 5",
             "ping -c 1 8.8.8.8",
+            "yum update",
+            "yum -y upgrade",
             "yum install -y openssh-server sudo python2-dnf ruby",
             "chkconfig sshd on",
             "service sshd start",
-            "mkdir /root/.ssh",
+            "mkdir /root/.ssh || true",
             "gem install busser",
             ]
         },
-        { guest: 'default-alpine-34', template: 'alpine-3.4-nossh', publishalias: 'alpine-3.4', shellcmds: [
+        { guest: 'default-alpine-34', template: 'alpine-3.4-nossh', publishalias: 'alpine-3.4', privileged: false, shellcmds: [
             "sleep 10",
             "ping -c 1 8.8.8.8",
+            "apk update",
+            "apk upgrade",
 ## wget, python, bash for kitchen, curl for chef omnibus, ruby?
             "apk add openssh sudo wget python ca-certificates bash ansible curl ruby ruby-dev",
             "rc-update add sshd",
             "/etc/init.d/sshd start",
-            "mkdir /root/.ssh",
+            "mkdir /root/.ssh || true",
             "sed -i '$ a\\none /dev/shm tmpfs defaults,nodev,nosuid,noexec,mode=1777 0 0' /etc/fstab",
-            "mkdir /dev/shm",
+            "mkdir /dev/shm || true",
             "mount /dev/shm",
-            "gem install busser",
+## {"changed": true, "cmd": "lxc exec default-alpine-34 -- gem install busser", "delta": "0:00:01.364307", "end": "2016-11-25 23:39:02.658563", "failed": true, "item": "gem install busser", "rc": 1, "start": "2016-11-25 23:39:01.294256", "stderr": "ERROR:  While executing gem ... (Gem::DocumentError)\n    RDoc is not installed: cannot load such file -- rdoc/rdoc", "stdout": "Successfully installed thor-0.19.0\nSuccessfully installed busser-0.7.1", "stdout_lines": ["Successfully installed thor-0.19.0", "Successfully installed busser-0.7.1"], "warnings": []}
+            "gem install busser || true",
             ]
         }
     ]
