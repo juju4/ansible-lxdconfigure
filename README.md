@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/juju4/ansible-lxdconfigure.svg?branch=master)](https://travis-ci.org/juju4/ansible-lxdconfigure)
+[![Build Status - Master](https://travis-ci.org/juju4/ansible-lxdconfigure.svg?branch=master)](https://travis-ci.org/juju4/ansible-lxdconfigure)
+[![Build Status - Devel](https://travis-ci.org/juju4/ansible-lxdconfigure.svg?branch=devel)](https://travis-ci.org/juju4/ansible-lxdconfigure/branches)
 # LXD containers pre-configuration ansible role
 
 Ansible role to pre-copy images and eventually pre-configure some.
@@ -8,6 +9,7 @@ Ansible role to pre-copy images and eventually pre-configure some.
 ### Ansible
 It was tested on the following versions:
  * 2.0
+ * 2.2
 
 ### Operating systems
 
@@ -21,7 +23,7 @@ For example
 ```
 - host: all
   roles:
-    - lxdconfigure
+    - juju4.lxdconfigure
 ```
 
 ## Variables
@@ -34,7 +36,7 @@ This role has a travis test calling kitchen with lxd (for github), kitchen local
 
 Once you ensured all necessary roles are present, You can test with:
 ```
-$ cd /path/to/roles/lxdconfigure
+$ cd /path/to/roles/juju4.lxdconfigure
 ## lxd backend
 $ kitchen verify
 $ kitchen login
@@ -43,7 +45,7 @@ $ KITCHEN_YAML=".kitchen.vagrant.yml" kitchen verify
 ```
 or
 ```
-$ cd /path/to/roles/lxdconfigure/test/vagrant
+$ cd /path/to/roles/juju4.lxdconfigure/test/vagrant
 $ vagrant up
 $ vagrant ssh
 ```
