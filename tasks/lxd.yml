@@ -3,6 +3,10 @@
 - name: ensure lxd service is started and enabled
   service: name=lxd state=started enabled=yes
 
+## creates=/var/lib/lxd/lxd.db ?
+- name: configure lxd daemon
+  command: "lxd init --auto {{ lxdconfigure_init }}"
+
 - name: list existing lxc images
   command: "lxc image list"
   changed_when: false

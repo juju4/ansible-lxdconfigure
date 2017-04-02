@@ -1,5 +1,9 @@
 ---
 
+#lxdconfigure_init: '--storage-backend dir'
+## loop zfs 10GB
+lxdconfigure_init: '--storage-backend zfs --storage-create-loop 10 --storage-pool myzfspool'
+
 lxd_preloadimages:
     - { i: 'ubuntu:16.04', alias: 'ubuntu-16.04-nopython' }
     - { i: 'ubuntu:14.04', alias: 'ubuntu-14.04' }
