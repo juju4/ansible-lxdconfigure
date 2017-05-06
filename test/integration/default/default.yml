@@ -2,7 +2,9 @@
 
 - hosts: all
   vars:
+#    - lxd_preloadimages:
     - lxd_preloadimages:
+        - { i: 'ubuntu:16.04', alias: 'ubuntu-16.04-nopython' }
     - lxd_preconfigure: []
 ## must be different than lxc host if relevant
     - lxd_bridgeconf_ipv4_addr: "10.252.10.1"
