@@ -14,7 +14,7 @@
   changed_when: false
   register: imagelist
 - name: pre copy lxc images
-  include: "lxc-image-copy.yml current={{ imagelist }} image={{ item.i }} alias={{ item.alias }}"
+  include: "lxc-image-copy.yml current={{ imagelist }} image={{ item.i | default('') }} alias={{ item.alias | default('') }}"
   with_items: "{{ lxd_preloadimages }}"
 
 - name: list existing lxc images
