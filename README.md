@@ -10,6 +10,7 @@ Ansible role to pre-copy images and eventually pre-configure some.
 It was tested on the following versions:
  * 2.0
  * 2.2
+ * 2.5
 
 ### Operating systems
 
