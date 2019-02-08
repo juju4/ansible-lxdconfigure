@@ -33,5 +33,4 @@
       with_items: "{{ lxd_preconfigure }}"
       loop_control:
         loop_var: outer_item
-  when: lxd_preconfigure is defined and lxd_preconfigure != '' and lxd_preconfigure != []
-
+  when: lxd_preconfigure is defined and lxd_preconfigure and lxd_preconfigure != []

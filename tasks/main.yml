@@ -6,4 +6,7 @@
   when: ansible_env['TRAVIS'] is defined and ansible_env['TRAVIS'] == 'true'
 
 - include: lxd.yml
-  when: (ansible_virtualization_type is not defined or not (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
+  when: >
+    (ansible_virtualization_type is not defined or
+      not (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker")
+    )
