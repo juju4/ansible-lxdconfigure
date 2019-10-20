@@ -127,6 +127,17 @@ after_failure:
   - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- journalctl -xe --no-pager"
 
 after_script:
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- ps axuw"
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- netstat -anp"
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- ss -nlp"
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- ip addr"
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- systemctl -l --no-pager status lxd"
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- ls -la /var/lib/lxd/disks/"
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- ls -la /var/lib/lxd/networks/"
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- lxc info"
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- lxc profile show default"
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- lxc storage list"
+  - sudo -E su $USER -c "lxc exec run-${distribution}-${version//./} -- lxc network list"
   - sudo -E su $USER -c "lxc stop run-${distribution}-${version//./} --force"
   - sudo -E su $USER -c "lxc delete run-${distribution}-${version//./}"
 
