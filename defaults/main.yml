@@ -1,23 +1,23 @@
 ---
 
 #lxdconfigure_init: '--storage-backend dir'
-## loop zfs 10GB
-lxdconfigure_init: '--storage-backend zfs --storage-create-loop 10 --storage-pool myzfspool'
+## loop zfs 16GB
+lxd_storage_backend: zfs
+lxd_storage_pool: myzfspool
+lxd_zpool: lxd_tank
+lxdconfigure_init: "--storage-backend {{ lxd_storage_backend }} --storage-create-loop 16 --storage-pool {{ lxd_storage_pool }}"
 
 lxd_preloadimages:
-    - { i: 'ubuntu:16.04', alias: 'ubuntu-16.04-nopython' }
-    - { i: 'ubuntu:14.04', alias: 'ubuntu-14.04' }
-    - { i: 'ubuntu:12.04', alias: 'ubuntu-12.04' }
+    - { i: 'ubuntu:18.04', alias: 'ubuntu-18.04-nopython' }
+    - { i: 'images:centos/8/amd64', alias: 'centos-8-nossh' }
     - { i: 'images:centos/7/amd64', alias: 'centos-7-nossh' }
-    - { i: 'images:centos/6/amd64', alias: 'centos-6-nossh' }
-    - { i: 'images:fedora/24/amd64', alias: 'fedora-24-nossh' }
+    - { i: 'images:fedora/30/amd64', alias: 'fedora-30-nossh' }
     - { i: 'images:debian/jessie/amd64', alias: 'debian-jessie-nossh' }
-    - { i: 'images:ubuntu/yakkety/amd64', alias: 'ubuntu-yakkety-nossh' }
-    - { i: 'images:alpine/3.4/amd64', alias: 'alpine-3.4-nossh' }
+    - { i: 'images:alpine/3.10/amd64', alias: 'alpine-3.10-nossh' }
 
 ## packages are the ones necessary for kitchen+ansible
 lxd_preconfigure: [
-        { guest: 'default-ubuntu-1604', template: 'ubuntu-16.04-nopython', publishalias: 'ubuntu-16.04', privileged: false, shellcmds: [
+        { guest: 'default-ubuntu-1804', template: 'ubuntu-18.04-nopython', publishalias: 'ubuntu-18.04', privileged: false, shellcmds: [
             "dhclient eth0",
             "ping -c 1 8.8.8.8",
 ## Job for iscsid.service failed because a configured resource limit was exceeded. See \"systemctl status iscsid.service\" and \"journalctl -xe\" for details.\r\ninvoke-rc.d: initscript iscsid, action \"restart\" failed.
@@ -26,38 +26,29 @@ lxd_preconfigure: [
             "apt-get update",
             'env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" upgrade',
             "apt-get install -y python ruby ruby-dev",
-            "gem install busser",
-            ]
-        },
-        { guest: 'default-ubuntu-yakkety', template: 'ubuntu-yakkety-nossh', publishalias: 'ubuntu-yakkety', privileged: false, shellcmds: [
-            "dhclient eth0",
-            "ping -c 1 8.8.8.8",
-            "apt-get update",
-            'env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" upgrade',
-            "apt-get install -y python openssh-server sudo ruby ruby-dev",
-            "mkdir /root/.ssh || true",
+            "apt-get clean all",
             "gem install busser",
             ]
         },
         { guest: 'default-centos-7', template: 'centos-7-nossh', publishalias: 'centos-7', privileged: false, shellcmds: [
             "dhclient eth0",
             "ping -c 1 8.8.8.8",
-            "yum update",
             "yum -y upgrade",
             "yum install -y openssh-server sudo ruby",
+            "yum clean -y all",
             "systemctl enable sshd",
             "systemctl start sshd",
             "mkdir /root/.ssh || true",
             "gem install busser",
             ]
         },
-        { guest: 'default-centos-6', template: 'centos-6-nossh', publishalias: 'centos-6', privileged: false, shellcmds: [
-#            "dhclient eth0",
+        { guest: 'default-centos-8', template: 'centos-8-nossh', publishalias: 'centos-8', privileged: false, shellcmds: [
+            "dhclient eth0",
             "dhclient eth0 || true",
             "ping -c 1 8.8.8.8",
-            "yum update",
-            "yum -y upgrade",
-            "yum install -y openssh-server sudo ruby",
+            "dnf -y upgrade",
+            "dnf install -y openssh-server sudo ruby",
+            "dnf clean -y all",
             "chkconfig sshd on",
             "service sshd start",
             "mkdir /root/.ssh || true",
@@ -70,6 +61,7 @@ lxd_preconfigure: [
             "apt-get update",
             'env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" upgrade',
             "apt-get install -y python openssh-server sudo ruby ruby-dev inetutils-tools inetutils-ping",
+            "apt-get clean all",
 ## ping not found by default, need inetutils-tools inetutils-ping
             "ping -c 1 8.8.8.8",
             "mkdir /root/.ssh || true",
@@ -77,20 +69,20 @@ lxd_preconfigure: [
             ]
         },
 ## https://github.com/ansible/ansible-modules-core/issues/5582
-        { guest: 'default-fedora-24', template: 'fedora-24-nossh', publishalias: 'fedora-24', privileged: false, shellcmds: [
+        { guest: 'default-fedora-30', template: 'fedora-30-nossh', publishalias: 'fedora-30', privileged: false, shellcmds: [
             "dhclient eth0 || true",
             "sleep 5",
             "ping -c 1 8.8.8.8",
-            "yum update",
-            "yum -y upgrade",
-            "yum install -y openssh-server sudo python2-dnf ruby",
-            "chkconfig sshd on",
+            "dnf -y upgrade",
+            "dnf install -y openssh-server sudo python3-dnf ruby",
+            "dnf clean -y all",
+            "systemctl enable sshd.service",
             "service sshd start",
             "mkdir /root/.ssh || true",
             "gem install busser",
             ]
         },
-        { guest: 'default-alpine-34', template: 'alpine-3.4-nossh', publishalias: 'alpine-3.4', privileged: false, shellcmds: [
+        { guest: 'default-alpine-310', template: 'alpine-3.10-nossh', publishalias: 'alpine-3.10', privileged: false, shellcmds: [
             "sleep 10",
             "ping -c 1 8.8.8.8",
             "apk update",
