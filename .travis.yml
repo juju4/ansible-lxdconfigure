@@ -19,10 +19,6 @@ env:
     version: 16.04
     ansible_version: 2.7.7
     cryptography_version: 2.5.0
-  - distribution: ubuntu
-    version: 14.04
-    ansible_version: 2.6.13
-    cryptography_version: 2.0.3
 #  - distribution: ubuntu
 #    version: 12.04
 #  - distribution: alpine
