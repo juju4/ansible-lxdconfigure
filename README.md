@@ -1,5 +1,9 @@
 [![Build Status - Master](https://travis-ci.org/juju4/ansible-lxdconfigure.svg?branch=master)](https://travis-ci.org/juju4/ansible-lxdconfigure)
 [![Build Status - Devel](https://travis-ci.org/juju4/ansible-lxdconfigure.svg?branch=devel)](https://travis-ci.org/juju4/ansible-lxdconfigure/branches)
+
+[![Actions Status - Master](https://github.com/juju4/ansible-lxdconfigure/workflows/AnsibleCI/badge.svg)](https://github.com/juju4/ansible-lxdconfigure/actions?query=branch%3Amaster)
+[![Actions Status - Devel](https://github.com/juju4/ansible-adduser/workflows/AnsibleCI/badge.svg?branch=devel)](https://github.com/juju4/ansible-adduser/actions?query=branch%3Adevel)
+
 # LXD containers pre-configuration ansible role
 
 Ansible role to pre-copy images and eventually pre-configure some.
