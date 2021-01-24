@@ -8,16 +8,15 @@ lxd_zpool: lxd_tank
 lxdconfigure_init: "--storage-backend {{ lxd_storage_backend }} --storage-create-loop 16 --storage-pool {{ lxd_storage_pool }}"
 
 lxd_preloadimages:
-    - { i: 'ubuntu:18.04', alias: 'ubuntu-18.04-nopython' }
-    - { i: 'images:centos/8/amd64', alias: 'centos-8-nossh' }
-    - { i: 'images:centos/7/amd64', alias: 'centos-7-nossh' }
-    - { i: 'images:fedora/30/amd64', alias: 'fedora-30-nossh' }
-    - { i: 'images:debian/jessie/amd64', alias: 'debian-jessie-nossh' }
-    - { i: 'images:alpine/3.10/amd64', alias: 'alpine-3.10-nossh' }
+    - { i: 'ubuntu:20.04', alias: 'ubuntu-20.04-nopython' }
+    # - { i: 'images:centos/8/amd64', alias: 'centos-8-nossh' }
+    - { i: 'images:fedora/33/amd64', alias: 'fedora-33-nossh' }
+    # - { i: 'images:debian/buster/amd64', alias: 'debian-buster-nossh' }
+    # - { i: 'images:alpine/3.13/amd64', alias: 'alpine-3.13-nossh' }
 
 ## packages are the ones necessary for kitchen+ansible
 lxd_preconfigure: [
-        { guest: 'default-ubuntu-1804', template: 'ubuntu-18.04-nopython', publishalias: 'ubuntu-18.04', privileged: false, shellcmds: [
+        { guest: 'default-ubuntu-2004', template: 'ubuntu-20.04-nopython', publishalias: 'ubuntu-20.04', privileged: false, shellcmds: [
             "dhclient eth0",
             "ping -c 1 8.8.8.8",
 ## Job for iscsid.service failed because a configured resource limit was exceeded. See \"systemctl status iscsid.service\" and \"journalctl -xe\" for details.\r\ninvoke-rc.d: initscript iscsid, action \"restart\" failed.
@@ -30,46 +29,8 @@ lxd_preconfigure: [
             "gem install busser",
             ]
         },
-        { guest: 'default-centos-7', template: 'centos-7-nossh', publishalias: 'centos-7', privileged: false, shellcmds: [
-            "dhclient eth0",
-            "ping -c 1 8.8.8.8",
-            "yum -y upgrade",
-            "yum install -y openssh-server sudo ruby",
-            "yum clean -y all",
-            "systemctl enable sshd",
-            "systemctl start sshd",
-            "mkdir /root/.ssh || true",
-            "gem install busser",
-            ]
-        },
-        { guest: 'default-centos-8', template: 'centos-8-nossh', publishalias: 'centos-8', privileged: false, shellcmds: [
-            "dhclient eth0",
-            "dhclient eth0 || true",
-            "ping -c 1 8.8.8.8",
-            "dnf -y upgrade",
-            "dnf install -y openssh-server sudo ruby",
-            "dnf clean -y all",
-            "chkconfig sshd on",
-            "service sshd start",
-            "mkdir /root/.ssh || true",
-#            "gem install busser",
-            ]
-        },
-## https://github.com/lxc/lxd/issues/1911, need privileged for systemd
-        { guest: 'default-jessie', template: 'debian-jessie-nossh', publishalias: 'debian-jessie', privileged: true, shellcmds: [
-            "dhclient eth0",
-            "apt-get update",
-            'env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" upgrade',
-            "apt-get install -y python openssh-server sudo ruby ruby-dev inetutils-tools inetutils-ping",
-            "apt-get clean all",
-## ping not found by default, need inetutils-tools inetutils-ping
-            "ping -c 1 8.8.8.8",
-            "mkdir /root/.ssh || true",
-            "gem install busser",
-            ]
-        },
 ## https://github.com/ansible/ansible-modules-core/issues/5582
-        { guest: 'default-fedora-30', template: 'fedora-30-nossh', publishalias: 'fedora-30', privileged: false, shellcmds: [
+        { guest: 'default-fedora-33', template: 'fedora-33-nossh', publishalias: 'fedora-33', privileged: false, shellcmds: [
             "dhclient eth0 || true",
             "sleep 5",
             "ping -c 1 8.8.8.8",
@@ -81,22 +42,60 @@ lxd_preconfigure: [
             "mkdir /root/.ssh || true",
             "gem install busser",
             ]
-        },
-        { guest: 'default-alpine-310', template: 'alpine-3.10-nossh', publishalias: 'alpine-3.10', privileged: false, shellcmds: [
-            "sleep 10",
-            "ping -c 1 8.8.8.8",
-            "apk update",
-            "apk upgrade",
+        # },
+        # { guest: 'default-centos-7', template: 'centos-7-nossh', publishalias: 'centos-7', privileged: false, shellcmds: [
+        #     "dhclient eth0",
+        #     "ping -c 1 8.8.8.8",
+        #     "yum -y upgrade",
+        #     "yum install -y openssh-server sudo ruby",
+        #     "yum clean -y all",
+        #     "systemctl enable sshd",
+        #     "systemctl start sshd",
+        #     "mkdir /root/.ssh || true",
+        #     "gem install busser",
+        #     ]
+        # },
+        # { guest: 'default-centos-8', template: 'centos-8-nossh', publishalias: 'centos-8', privileged: false, shellcmds: [
+        #     "dhclient eth0",
+        #     "dhclient eth0 || true",
+        #     "ping -c 1 8.8.8.8",
+        #     "dnf -y upgrade",
+        #     "dnf install -y openssh-server sudo ruby",
+        #     "dnf clean -y all",
+        #     "chkconfig sshd on",
+        #     "service sshd start",
+        #     "mkdir /root/.ssh || true",
+#            "gem install busser",
+        #     ]
+        # },
+## https://github.com/lxc/lxd/issues/1911, need privileged for systemd
+        # { guest: 'default-jessie', template: 'debian-jessie-nossh', publishalias: 'debian-jessie', privileged: true, shellcmds: [
+        #     "dhclient eth0",
+        #     "apt-get update",
+        #     'env DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -y -o "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" upgrade',
+        #     "apt-get install -y python openssh-server sudo ruby ruby-dev inetutils-tools inetutils-ping",
+        #     "apt-get clean all",
+## ping not found by default, need inetutils-tools inetutils-ping
+        #     "ping -c 1 8.8.8.8",
+        #     "mkdir /root/.ssh || true",
+        #     "gem install busser",
+        #     ]
+        # },
+        # { guest: 'default-alpine-313', template: 'alpine-3.13-nossh', publishalias: 'alpine-3.13', privileged: false, shellcmds: [
+        #     "sleep 10",
+        #     "ping -c 1 8.8.8.8",
+        #     "apk update",
+        #     "apk upgrade",
 ## wget, python, bash for kitchen, curl for chef omnibus, ruby?
-            "apk add openssh sudo wget python ca-certificates bash ansible curl ruby ruby-dev",
-            "rc-update add sshd",
-            "/etc/init.d/sshd start",
-            "mkdir /root/.ssh || true",
-            "sed -i '$ a\\none /dev/shm tmpfs defaults,nodev,nosuid,noexec,mode=1777 0 0' /etc/fstab",
-            "mkdir /dev/shm || true",
-            "mount /dev/shm",
+        #     "apk add openssh sudo wget python ca-certificates bash ansible curl ruby ruby-dev",
+        #     "rc-update add sshd",
+        #     "/etc/init.d/sshd start",
+        #     "mkdir /root/.ssh || true",
+        #     "sed -i '$ a\\none /dev/shm tmpfs defaults,nodev,nosuid,noexec,mode=1777 0 0' /etc/fstab",
+        #     "mkdir /dev/shm || true",
+        #     "mount /dev/shm",
 ## {"changed": true, "cmd": "lxc exec default-alpine-34 -- gem install busser", "delta": "0:00:01.364307", "end": "2016-11-25 23:39:02.658563", "failed": true, "item": "gem install busser", "rc": 1, "start": "2016-11-25 23:39:01.294256", "stderr": "ERROR:  While executing gem ... (Gem::DocumentError)\n    RDoc is not installed: cannot load such file -- rdoc/rdoc", "stdout": "Successfully installed thor-0.19.0\nSuccessfully installed busser-0.7.1", "stdout_lines": ["Successfully installed thor-0.19.0", "Successfully installed busser-0.7.1"], "warnings": []}
-            "gem install busser || true",
-            ]
+        #     "gem install busser || true",
+        #     ]
         }
     ]
