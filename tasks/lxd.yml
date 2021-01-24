@@ -33,7 +33,7 @@
   args:
     creates: "/var/lib/lxd/disks/{{ lxd_storage_pool }}.img"
   when:
-#    not (lxd_storage_pool in lxc_storage_ls.stdout) and
+    # not (lxd_storage_pool in lxc_storage_ls.stdout) and
     lxd_storage_backend == 'zfs'
 
 - name: check default profile
@@ -79,7 +79,7 @@
 - block:
     - debug: var=lxd_preconfigure
     - name: pre-configure lxc images
-      include: "lxd-preconfigure.yml imagelist={{ imagelist2 }} lxclist={{ lxclist2 }} guest={{ outer_item.guest | default('') }} template={{ outer_item.template | default('') }} publishalias={{ outer_item.publishalias | default('') }} privileged={{ outer_item.privileged | default('') }} shellcmds={{ outer_item.shellcmds | default('') }}"
+      include: "lxd-preconfigure.yml imagelist={{ imagelist2 }} lxclist={{ lxclist2 }} guest={{ outer_item.guest | default('') }} template={{ outer_item.template | default('') }} publishalias={{ outer_item.publishalias | default('') }} privileged={{ outer_item.privileged | default('') }} shellcmds={{ outer_item.shellcmds | default('') }}"  # noqa 204
       with_items: "{{ lxd_preconfigure }}"
       loop_control:
         loop_var: outer_item
