@@ -80,15 +80,18 @@ jobs:
         run: |
           systemctl -l --no-pager status lxd || true
           systemd-analyze security || true
+        if: ${{ always() }}
         continue-on-error: true
       - name: After script - sysctl
         run: |
           sysctl user
+        if: ${{ always() }}
         continue-on-error: true
       - name: After script - files
         run: |
           sudo ls -la /var/lib/lxd/disks/
           sudo ls -la /var/lib/lxd/networks/
+        if: ${{ always() }}
         continue-on-error: true
       - name: After script - lxc
         run: |
@@ -97,10 +100,12 @@ jobs:
           sudo lxc storage list
           sudo lxc network list
           sudo lxc image list
+        if: ${{ always() }}
         continue-on-error: true
       - name: After script - text lxc
         run: |
           sudo lxc launch ubuntu-20.04 a
           sudo lxc exec a -- ping -c 1 www.google.com
           sudo lxc delete a --force
+        if: ${{ always() }}
         continue-on-error: true
