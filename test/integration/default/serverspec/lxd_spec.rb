@@ -17,11 +17,6 @@ describe service('lxd'), :if => os[:family] == 'ubuntu' && os[:release] == '14.0
   it { should be_enabled   }
   it { should be_running   }
 end
-describe service('lxd-bridge'), :if => os[:family] == 'ubuntu' && os[:release] != '14.04' do
-  it { should be_enabled   }
-## as we test inside container, might not be the case
-#  it { should be_running   }
-end
 
 describe file('/var/lib/lxd/unix.socket') do
   it { should be_socket }
