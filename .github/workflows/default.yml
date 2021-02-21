@@ -141,6 +141,13 @@ jobs:
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'ping -c 1 www.google.com' || true
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'ping -c 1 8.8.8.8' || true
         if: ${{ failure() }}
+      - name: After script - snap
+        run: |
+          cd $GITHUB_WORKSPACE/juju4.lxdconfigure
+          sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'snap list' || true
+          sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'systemctl -l --no-pager status snap.lxd.daemon' || true
+        if: ${{ always() }}
+        continue-on-error: true
       - name: After script - systemd
         run: |
           cd $GITHUB_WORKSPACE/juju4.lxdconfigure
