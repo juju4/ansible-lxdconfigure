@@ -152,7 +152,6 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/juju4.lxdconfigure
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'systemctl -l --no-pager status lxd' || true
-          sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'systemd-analyze security' || true
         if: ${{ always() }}
         continue-on-error: true
       - name: After script - sysctl
