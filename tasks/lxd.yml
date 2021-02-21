@@ -1,7 +1,12 @@
 ---
 
-- name: ensure lxd service is started and enabled
+- name: Ubuntu<20.04 | ensure lxd service is started and enabled
   service: name=lxd state=started enabled=yes
+  when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int < 20)
+
+- name: Ubuntu>=20.04 | ensure snap.lxd service is started and enabled
+  service: name=snap.lxd.daemon state=started enabled=yes
+  when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int >= 20)
 
 - name: lxc info
   command: lxc info
