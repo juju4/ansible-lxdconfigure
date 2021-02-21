@@ -34,7 +34,8 @@
     creates: "/var/lib/lxd/disks/{{ lxd_storage_pool }}.img"
   when:
     # not (lxd_storage_pool in lxc_storage_ls.stdout) and
-    lxd_storage_backend == 'zfs'
+    lxd_storage_backend == 'zfs' and
+    not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
 
 - name: check default profile
   command: lxc profile show default
@@ -47,7 +48,8 @@
     lxc profile device add default root disk path=/ pool={{ lxd_storage_pool }}
   when:
     not (lxd_storage_pool in lxc_profile_show.stdout) and
-    lxd_storage_backend == 'zfs'
+    lxd_storage_backend == 'zfs' and
+    not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
 
 - name: check network
   command: lxc network list
