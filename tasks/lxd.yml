@@ -9,6 +9,12 @@
   run_once: true
   changed_when: false
 
+- name: Lxc+docker | don't use zfs
+  set_fact:
+    lxdconfigure_init: '--storage-backend dir'
+  when: >
+    (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
+
 ## duplicate of lxd role?
 ## creates=/var/lib/lxd/lxd.db ? correct?
 - name: configure lxd daemon
