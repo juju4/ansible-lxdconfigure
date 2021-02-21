@@ -157,6 +157,7 @@ jobs:
       - name: After script - files
         run: |
           cd $GITHUB_WORKSPACE/juju4.lxdconfigure
+          sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo ls -la /var/lib/lxd/' || true
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo ls -la /var/lib/lxd/disks/' || true
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo ls -la /var/lib/lxd/networks/' || true
         if: ${{ always() }}
