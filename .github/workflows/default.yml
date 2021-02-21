@@ -143,23 +143,27 @@ jobs:
         if: ${{ failure() }}
       - name: After script - systemd
         run: |
+          cd $GITHUB_WORKSPACE/juju4.lxdconfigure
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'systemctl -l --no-pager status lxd' || true
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'systemd-analyze security' || true
         if: ${{ always() }}
         continue-on-error: true
       - name: After script - sysctl
         run: |
+          cd $GITHUB_WORKSPACE/juju4.lxdconfigure
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sysctl user'
         if: ${{ always() }}
         continue-on-error: true
       - name: After script - files
         run: |
+          cd $GITHUB_WORKSPACE/juju4.lxdconfigure
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo ls -la /var/lib/lxd/disks/' || true
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo ls -la /var/lib/lxd/networks/' || true
         if: ${{ always() }}
         continue-on-error: true
       - name: After script - lxc
         run: |
+          cd $GITHUB_WORKSPACE/juju4.lxdconfigure
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo lxc info' || true
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo lxc profile show default' || true
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo lxc storage list' || true
@@ -167,8 +171,9 @@ jobs:
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo lxc image list' || true
         if: ${{ always() }}
         continue-on-error: true
-      - name: After script - text lxc
+      - name: After script - test lxc
         run: |
+          cd $GITHUB_WORKSPACE/juju4.lxdconfigure
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo lxc launch ubuntu-20.04 a'' || true
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo lxc exec a -- ping -c 1 www.google.com'' || true
           sudo kitchen exec ${{ matrix.suite }}-${{ matrix.distribution }}-${{ matrix.version2 }} -c 'sudo lxc delete a --force'' || true
