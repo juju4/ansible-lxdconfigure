@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: lxdconfigure
   author: juju4
   description: pre-copy lxd containers images and eventually pre-configure some.
   license: BSD
