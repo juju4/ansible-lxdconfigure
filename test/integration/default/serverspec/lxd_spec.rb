@@ -18,7 +18,7 @@ describe service('lxd'), :if => os[:family] == 'ubuntu' && os[:release] == '14.0
   it { should be_running   }
 end
 
-describe file('/var/lib/lxd/unix.socket') do
+describe file('/var/lib/lxd/unix.socket'), :if => os[:family] != 'ubuntu' || os[:release] == '20.04' do
   it { should be_socket }
 end
 
