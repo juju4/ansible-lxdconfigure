@@ -69,7 +69,8 @@
   ignore_errors: true
   changed_when: false
 
-- debug:
+- name: Debug | lxc network
+  debug:
     var: lxc_network_list
     verbosity: 1
 
@@ -91,7 +92,8 @@
   register: lxclist2
 
 - block:
-    - debug: var=lxd_preconfigure
+    - name: Debug | lxd_preconfigure
+      debug: var=lxd_preconfigure
     - name: pre-configure lxc images
       include: "lxd-preconfigure.yml imagelist={{ imagelist2 }} lxclist={{ lxclist2 }} guest={{ outer_item.guest | default('') }} template={{ outer_item.template | default('') }} publishalias={{ outer_item.publishalias | default('') }} privileged={{ outer_item.privileged | default('') }} shellcmds={{ outer_item.shellcmds | default('') }}"  # noqa 204
       with_items: "{{ lxd_preconfigure }}"
