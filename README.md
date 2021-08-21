@@ -62,4 +62,3 @@ https://github.com/ansible/ansible/issues/17151
 ## License
 
 BSD 2-clause
-
