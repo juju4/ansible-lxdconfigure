@@ -21,12 +21,12 @@
       when: not (" " + guest + " " in lxclist.stdout) and privileged
 
     - name: configure lxc instance {{ guest }}
-      command: "lxc exec {{ guest }} -- {{ item }}"
+      command: "lxc exec {{ guest }} -- {{ item }}"  # noqa no-changed-when
       with_items: "{{ shellcmds }}"
       # ignore_errors: true
 
     - name: stop and publish lxc instance {{ guest }}
-      command: "{{ item }}"
+      command: "{{ item }}"  # noqa no-changed-when
       with_items:
         - "lxc stop {{ guest }} --force"
         - "lxc publish {{ guest }} --alias {{ publishalias }}"
