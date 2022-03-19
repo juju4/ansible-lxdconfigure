@@ -1,21 +1,21 @@
 ---
 
 - name: Ubuntu<20.04 | ensure lxd service is started and enabled
-  service: name=lxd state=started enabled=yes
+  ansible.builtin.service: name=lxd state=started enabled=yes
   when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int < 20)
 
 - name: Ubuntu>=20.04 | ensure snap.lxd service is started and enabled
-  service: name=snap.lxd.daemon state=started enabled=yes
+  ansible.builtin.service: name=snap.lxd.daemon state=started enabled=yes
   when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version|int >= 20)
 
 - name: lxc info
-  command: lxc info
+  ansible.builtin.command: lxc info
   register: lxc_info_src
   run_once: true
   changed_when: false
 
 - name: Lxc+docker | don't use zfs
-  set_fact:
+  ansible.builtin.set_fact:
     lxdconfigure_init: '--storage-backend dir'
   when: >
     (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
@@ -23,7 +23,7 @@
 ## duplicate of lxd role?
 ## creates=/var/lib/lxd/lxd.db ? correct?
 - name: configure lxd daemon
-  command: "lxd init --auto {{ lxdconfigure_init }}"
+  ansible.builtin.command: "lxd init --auto {{ lxdconfigure_init }}"
   register: lxdinit
   args:
     creates: "/var/lib/lxd/disks/{{ lxd_storage_pool }}.img"
@@ -38,7 +38,7 @@
     not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
 
 - name: lxc storage list
-  shell: lxc storage list | egrep -v '(NAME|---)'
+  ansible.builtin.shell: lxc storage list | egrep -v '(NAME|---)'
   register: lxc_storage_ls
   run_once: true
   ignore_errors: true
@@ -46,7 +46,7 @@
 
 # https://lxd.readthedocs.io/en/latest/storage/
 - name: create storage pool
-  command: >
+  ansible.builtin.command: >
     lxc storage create {{ lxd_storage_pool }} zfs zfs.pool\_name={{ lxd_zpool }}
 #    lxc storage create {{ lxd_storage_pool }} zfs source={{ lxd_zpool }}
   register: lxcstor
@@ -63,13 +63,13 @@
     - not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
 
 - name: check default profile
-  command: lxc profile show default
+  ansible.builtin.command: lxc profile show default
   register: lxc_profile_show
   ignore_errors: true
   changed_when: false
 
 - name: add storage pool to default profile
-  command: >
+  ansible.builtin.command: >
     lxc profile device add default root disk path=/ pool={{ lxd_storage_pool }}
   when:
     not (lxd_storage_pool in lxc_profile_show.stdout) and
@@ -77,18 +77,18 @@
     not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
 
 - name: check network
-  command: lxc network list
+  ansible.builtin.command: lxc network list
   register: lxc_network_list
   ignore_errors: true
   changed_when: false
 
 - name: Debug | lxc network
-  debug:
+  ansible.builtin.debug:
     var: lxc_network_list
     verbosity: 1
 
 - name: list existing lxc images
-  command: "lxc image list"
+  ansible.builtin.command: "lxc image list"
   changed_when: false
   register: imagelist
 - name: pre copy lxc images
@@ -96,17 +96,17 @@
   with_items: "{{ lxd_preloadimages }}"
 
 - name: list existing lxc images
-  command: "lxc image list"
+  ansible.builtin.command: "lxc image list"
   changed_when: false
   register: imagelist2
 - name: list existing lxc instances
-  command: "lxc list"
+  ansible.builtin.command: "lxc list"
   changed_when: false
   register: lxclist2
 
 - block:
     - name: Debug | lxd_preconfigure
-      debug: var=lxd_preconfigure
+      ansible.builtin.debug: var=lxd_preconfigure
     - name: pre-configure lxc images
       include: "lxd-preconfigure.yml imagelist={{ imagelist2 }} lxclist={{ lxclist2 }} guest={{ outer_item.guest | default('') }} template={{ outer_item.template | default('') }} publishalias={{ outer_item.publishalias | default('') }} privileged={{ outer_item.privileged | default('') }} shellcmds={{ outer_item.shellcmds | default('') }}"  # noqa 204
       with_items: "{{ lxd_preconfigure }}"

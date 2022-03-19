@@ -3,7 +3,7 @@
 
 - block:
     - name: start lxc instance {{ guest }}  # noqa 305
-      shell: "{{ item }}"
+      ansible.builtin.shell: "{{ item }}"
       with_items:
         - "lxc init {{ template }} {{ guest }}"
         - "lxc start {{ guest }}"
@@ -13,7 +13,7 @@
         - "openssl rand -base64 48 | perl -ne 'print \"$_\" x2' | lxc exec {{ guest }} -- passwd root"
       when: not (" " + guest + " " in lxclist.stdout) and not privileged
     - name: start lxc instance {{ guest }} - privileged  # noqa 305
-      shell: "{{ item }}"
+      ansible.builtin.shell: "{{ item }}"
       with_items:
         - "lxc init -c security.privileged=true {{ template }} {{ guest }}"
         - "lxc start {{ guest }}"
@@ -21,12 +21,12 @@
       when: not (" " + guest + " " in lxclist.stdout) and privileged
 
     - name: configure lxc instance {{ guest }}
-      command: "lxc exec {{ guest }} -- {{ item }}"  # noqa no-changed-when
+      ansible.builtin.command: "lxc exec {{ guest }} -- {{ item }}"  # noqa no-changed-when
       with_items: "{{ shellcmds }}"
       # ignore_errors: true
 
     - name: stop and publish lxc instance {{ guest }}
-      command: "{{ item }}"  # noqa no-changed-when
+      ansible.builtin.command: "{{ item }}"  # noqa no-changed-when
       with_items:
         - "lxc stop {{ guest }} --force"
         - "lxc publish {{ guest }} --alias {{ publishalias }}"
