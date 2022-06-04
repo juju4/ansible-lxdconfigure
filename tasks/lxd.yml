@@ -104,7 +104,8 @@
   changed_when: false
   register: lxclist2
 
-- block:
+- name: preconfigure images
+  block:
     - name: Debug | lxd_preconfigure
       ansible.builtin.debug: var=lxd_preconfigure
     - name: pre-configure lxc images
