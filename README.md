@@ -15,7 +15,7 @@ It was tested on the following versions:
 
 ### Operating systems
 
-Tested on Ubuntu Trusty and Xenial
+Tested on Ubuntu 18.04, 20.04 and 22.04.
 
 ## Example Playbook
 
