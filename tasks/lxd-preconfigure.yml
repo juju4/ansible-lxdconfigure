@@ -2,6 +2,7 @@
 ## FIXME! when Ansible 2.2.0 released: use lxd_container module
 
 - name: Image not published
+  when: not ((" " + publishalias + " ") in imagelist.stdout) and guest
   block:
     - name: Start lxc instance {{ guest }}  # noqa 305
       ansible.builtin.shell: "{{ item }}"
@@ -13,7 +14,7 @@
         # - "openssl rand -base64 48 | lxc exec {{ guest }} -- passwd root --stdin"
         - "openssl rand -base64 48 | perl -ne 'print \"$_\" x2' | lxc exec {{ guest }} -- passwd root"
       when: not (" " + guest + " " in lxclist.stdout) and not privileged
-    - name: Start lxc instance {{ guest }} - privileged  # noqa 305
+    - name: Start lxc instance - privileged {{ guest }}  # noqa 305
       ansible.builtin.shell: "{{ item }}"
       with_items:
         - "lxc init -c security.privileged=true {{ template }} {{ guest }}"
@@ -32,4 +33,3 @@
         - "lxc stop {{ guest }} --force"
         - "lxc publish {{ guest }} --alias {{ publishalias }}"
         - "lxc delete {{ guest }}"
-  when: not ((" " + publishalias + " ") in imagelist.stdout) and guest

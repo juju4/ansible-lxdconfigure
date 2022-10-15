@@ -1,11 +1,17 @@
 ---
 
 - name: Ubuntu<20.04 | ensure lxd service is started and enabled
-  ansible.builtin.service: name=lxd state=started enabled=yes
+  ansible.builtin.service:
+    name: lxd
+    state: started
+    enabled: yes
   when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 20)
 
 - name: Ubuntu>=20.04 | ensure snap.lxd service is started and enabled
-  ansible.builtin.service: name=snap.lxd.daemon state=started enabled=yes
+  ansible.builtin.service:
+    name: snap.lxd.daemon
+    state: started
+    enabled: yes
   when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int >= 20)
 
 - name: Lxc info
@@ -45,7 +51,7 @@
   changed_when: false
 
 # https://lxd.readthedocs.io/en/latest/storage/
-- name: Create storage pool
+- name: Create storage pool  # noqa no-free-form
   ansible.builtin.command: >
     lxc storage create {{ lxd_storage_pool }} zfs zfs.pool\_name={{ lxd_zpool }}
 #    lxc storage create {{ lxd_storage_pool }} zfs source={{ lxd_zpool }}
@@ -68,7 +74,7 @@
   ignore_errors: true
   changed_when: false
 
-- name: Add storage pool to default profile
+- name: Add storage pool to default profile  # noqa no-free-form
   ansible.builtin.command: >
     lxc profile device add default root disk path=/ pool={{ lxd_storage_pool }}
   when:
@@ -92,7 +98,11 @@
   changed_when: false
   register: imagelist
 - name: Pre copy lxc images
-  include: "lxc-image-copy.yml current={{ imagelist }} image={{ item.i | default('') }} alias={{ item.alias | default('') }}"
+  ansible.builtin.include_tasks: lxc-image-copy.yml
+  vars:
+    current: "{{ imagelist }}"
+    image: "{{ item.i | default('') }}"
+    alias: "{{ item.alias | default('') }}"
   with_items: "{{ lxd_preloadimages }}"
 
 - name: List existing lxc images
@@ -105,12 +115,21 @@
   register: lxclist2
 
 - name: Preconfigure images
+  when: lxd_preconfigure is defined and lxd_preconfigure and lxd_preconfigure != []
   block:
     - name: Debug | lxd_preconfigure
-      ansible.builtin.debug: var=lxd_preconfigure
+      ansible.builtin.debug:
+        var: lxd_preconfigure
     - name: Pre-configure lxc images
-      include: "lxd-preconfigure.yml imagelist={{ imagelist2 }} lxclist={{ lxclist2 }} guest={{ outer_item.guest | default('') }} template={{ outer_item.template | default('') }} publishalias={{ outer_item.publishalias | default('') }} privileged={{ outer_item.privileged | default('') }} shellcmds={{ outer_item.shellcmds | default('') }}"  # noqa 204
+      ansible.builtin.include_tasks: lxd-preconfigure.yml
+      vars:
+        imagelist: "{{ imagelist2 }}"
+        lxclist: "{{ lxclist2 }}"
+        guest: "{{ outer_item.guest | default('') }}"
+        template: "{{ outer_item.template | default('') }}"
+        publishalias: "{{ outer_item.publishalias | default('') }}"
+        privileged: "{{ outer_item.privileged | default('') }}"
+        shellcmds: "{{ outer_item.shellcmds | default('') }}"
       with_items: "{{ lxd_preconfigure }}"
       loop_control:
         loop_var: outer_item
-  when: lxd_preconfigure is defined and lxd_preconfigure and lxd_preconfigure != []
