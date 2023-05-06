@@ -1,11 +1,12 @@
 ---
-## FIXME! when Ansible 2.2.0 released: use lxd_container module
+## when Ansible 2.2.0 released: use lxd_container module
 
-- name: Image not published
-  when: not ((" " + publishalias + " ") in imagelist.stdout) and guest
+- name: Lxd images published
+  when: "' ' + publishalias + ' ' not in imagelist.stdout"
   block:
-    - name: Start lxc instance {{ guest }}  # noqa 305
-      ansible.builtin.shell: "{{ item }}"
+    - name: Start lxc instance {{ guest }}
+      ansible.builtin.shell:  # noqa no-changed-when command-instead-of-shell
+        cmd: "{{ item }}"
       with_items:
         - "lxc init {{ template }} {{ guest }}"
         - "lxc start {{ guest }}"
@@ -13,22 +14,17 @@
         ##  --stdin not supported on xenial
         # - "openssl rand -base64 48 | lxc exec {{ guest }} -- passwd root --stdin"
         - "openssl rand -base64 48 | perl -ne 'print \"$_\" x2' | lxc exec {{ guest }} -- passwd root"
-      when: not (" " + guest + " " in lxclist.stdout) and not privileged
-    - name: Start lxc instance - privileged {{ guest }}  # noqa 305
-      ansible.builtin.shell: "{{ item }}"
-      with_items:
-        - "lxc init -c security.privileged=true {{ template }} {{ guest }}"
-        - "lxc start {{ guest }}"
-        - "openssl rand -base64 48 | perl -ne 'print \"$_\" x2' | lxc exec {{ guest }} -- passwd root"
-      when: not (" " + guest + " " in lxclist.stdout) and privileged
+      when: '" " + guest " " not in lxclist.stdout'
 
-    - name: Configure lxc instance {{ guest }}
-      ansible.builtin.command: "lxc exec {{ guest }} -- {{ item }}"  # noqa no-changed-when
+    - name: Configure lxc instance {{ guest }}  # noqa no-changed-when
+      ansible.builtin.command:
+        cmd: "lxc exec {{ guest }} -- {{ item }}"
       with_items: "{{ shellcmds }}"
       # ignore_errors: true
 
-    - name: Stop and publish lxc instance {{ guest }}
-      ansible.builtin.command: "{{ item }}"  # noqa no-changed-when
+    - name: Stop and publish lxc instance {{ guest }}  # noqa no-changed-when
+      ansible.builtin.command:
+        cmd: "{{ item }}"
       with_items:
         - "lxc stop {{ guest }} --force"
         - "lxc publish {{ guest }} --alias {{ publishalias }}"
