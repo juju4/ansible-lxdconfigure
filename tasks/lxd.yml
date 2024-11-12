@@ -67,6 +67,7 @@
   when:
     - lxd_storage_backend == 'zfs'
     - not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
+    - "'| ' + lxd_storage_pool + ' |' not in lxc_storage_ls.stdout"
 
 - name: Check default profile
   ansible.builtin.command: lxc profile show default
