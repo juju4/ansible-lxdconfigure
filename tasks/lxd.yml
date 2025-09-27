@@ -117,7 +117,10 @@
   register: lxclist2
 
 - name: Preconfigure images
-  when: lxd_preconfigure is defined and lxd_preconfigure and lxd_preconfigure != []
+  when:
+    - lxd_preconfigure is defined
+    - lxd_preconfigure | length > 0
+    - lxd_preconfigure != []
   block:
     - name: Debug | lxd_preconfigure
       ansible.builtin.debug:
