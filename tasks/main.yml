@@ -8,7 +8,7 @@
     var: ansible_facts['virtualization_type']
 - name: Import travis
   ansible.builtin.import_tasks: travis.yml
-  when: ansible_env['TRAVIS'] is defined and ansible_env['TRAVIS'] == 'true'
+  when: ansible_facts.env['TRAVIS'] is defined and ansible_facts.env['TRAVIS'] == 'true'
 
 - name: Import lxd
   ansible.builtin.import_tasks: lxd.yml
