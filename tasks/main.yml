@@ -3,9 +3,9 @@
 - name: Debug | ansible_env
   ansible.builtin.debug:
     var: ansible_env
-- name: Debug | ansible_virtualization_type
+- name: Debug | ansible_facts['virtualization_type']
   ansible.builtin.debug:
-    var: ansible_virtualization_type
+    var: ansible_facts['virtualization_type']
 - name: Import travis
   ansible.builtin.import_tasks: travis.yml
   when: ansible_env['TRAVIS'] is defined and ansible_env['TRAVIS'] == 'true'
@@ -13,6 +13,6 @@
 - name: Import lxd
   ansible.builtin.import_tasks: lxd.yml
   when: >
-    (ansible_virtualization_type is not defined or
-      not (ansible_virtualization_type == "docker")
+    (ansible_facts['virtualization_type'] is not defined or
+      not (ansible_facts['virtualization_type'] == "docker")
     )

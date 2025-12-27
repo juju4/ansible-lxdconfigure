@@ -5,14 +5,14 @@
     name: lxd
     state: started
     enabled: yes
-  when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int < 20)
+  when: (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] | int < 20)
 
 - name: Ubuntu>=20.04 | ensure snap.lxd service is started and enabled
   ansible.builtin.service:
     name: snap.lxd.daemon
     state: started
     enabled: yes
-  when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int >= 20)
+  when: (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] | int >= 20)
 
 - name: Lxc info
   ansible.builtin.command: lxc info
@@ -24,7 +24,7 @@
   ansible.builtin.set_fact:
     lxdconfigure_init: '--storage-backend dir'
   when: >
-    (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
+    (ansible_facts['virtualization_type'] is defined and (ansible_facts['virtualization_type'] == "lxc" or ansible_facts['virtualization_type'] == "docker"))
 
 ## duplicate of lxd role?
 ## creates=/var/lib/lxd/lxd.db ? correct?
@@ -41,7 +41,7 @@
     - "lxdinit.stderr is not defined or 'Error: Storage has already been configured' not in lxdinit.stderr"
   when: >
     ("'storage: \"\",' in lxc_info_src.stdout") and
-    not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
+    not (ansible_facts['virtualization_type'] is defined and (ansible_facts['virtualization_type'] == "lxc" or ansible_facts['virtualization_type'] == "docker"))
 
 - name: Lxc storage list
   ansible.builtin.shell: lxc storage list | egrep -v '(NAME|---)'
@@ -66,7 +66,7 @@
     - "lxcstor.stderr is not defined or 'Error: The storage pool already exists' not in lxcstor.stderr"
   when:
     - lxd_storage_backend == 'zfs'
-    - not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
+    - not (ansible_facts['virtualization_type'] is defined and (ansible_facts['virtualization_type'] == "lxc" or ansible_facts['virtualization_type'] == "docker"))
     - "'| ' + lxd_storage_pool + ' |' not in lxc_storage_ls.stdout"
 
 - name: Check default profile
@@ -82,7 +82,7 @@
   when:
     not (lxd_storage_pool in lxc_profile_show.stdout) and
     lxd_storage_backend == 'zfs' and
-    not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
+    not (ansible_facts['virtualization_type'] is defined and (ansible_facts['virtualization_type'] == "lxc" or ansible_facts['virtualization_type'] == "docker"))
 
 - name: Check network
   ansible.builtin.command: lxc network list
