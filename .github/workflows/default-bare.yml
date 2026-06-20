@@ -114,6 +114,14 @@ jobs:
           sudo ls -la /var/lib/lxd/networks/
         if: ${{ always() }}
         continue-on-error: true
+      - name: After script - incus
+        run: |
+          sudo incus info
+          sudo incus profile show default
+          sudo incus storage list
+          sudo incus network list
+        if: ${{ always() }}
+        continue-on-error: true
       - name: After script - lxc
         run: |
           sudo lxc info
