@@ -13,6 +13,4 @@ galaxy_info:
         - jammy
   galaxy_tags:
     - system
-dependencies:
-  - role: juju4.redhat_epel
-  - role: juju4.lxd
+dependencies: []
