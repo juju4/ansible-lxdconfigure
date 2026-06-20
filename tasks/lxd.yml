@@ -2,7 +2,7 @@
 
 - name: Ensure service is started and enabled
   ansible.builtin.service:
-    name: "{{ lxdconfigure_svc }}"
+    name: "{{ lxdconfigure_service }}"
     state: started
     enabled: yes
 
