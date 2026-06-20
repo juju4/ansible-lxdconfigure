@@ -19,6 +19,8 @@
         name:
           - incus
           # - incus-ui-canonical
+          - zfs-dkms
+          - zfsutils-linux
         state: present
   roles:
     - juju4.lxdconfigure
