@@ -3,7 +3,7 @@
 
 # LXD containers pre-configuration ansible role
 
-Ansible role to pre-copy images and eventually pre-configure some.
+Ansible role to pre-copy images and eventually pre-configure some. Supports lxd and incus.
 
 ## Requirements & Dependencies
 
@@ -12,10 +12,11 @@ It was tested on the following versions:
  * 2.0
  * 2.2
  * 2.5
+ * 2.21
 
 ### Operating systems
 
-Tested on Ubuntu 18.04, 20.04 and 22.04.
+Tested on Ubuntu 22.04, 24.04.
 
 ## Example Playbook
 

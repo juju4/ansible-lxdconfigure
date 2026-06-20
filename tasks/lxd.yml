@@ -15,7 +15,8 @@
   when: (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] | int >= 20)
 
 - name: Lxc info
-  ansible.builtin.command: lxc info
+  ansible.builtin.command:
+    cmd: "{{ lxd_cmd }} info"
   register: lxc_info_src
   run_once: true
   changed_when: false
@@ -25,6 +26,10 @@
     lxdconfigure_init: '--storage-backend dir'
   when: >
     (ansible_facts['virtualization_type'] is defined and (ansible_facts['virtualization_type'] == "lxc" or ansible_facts['virtualization_type'] == "docker"))
+
+- name: Debug
+  ansible.builtin.debug:
+    msg: "{{ 'storage: \"\",' in lxc_info_src.stdout }}"
 
 ## duplicate of lxd role?
 ## creates=/var/lib/lxd/lxd.db ? correct?
@@ -39,12 +44,13 @@
   failed_when:
     - lxdinit.rc != 0
     - "lxdinit.stderr is not defined or 'Error: Storage has already been configured' not in lxdinit.stderr"
-  when: >
-    ("'storage: \"\",' in lxc_info_src.stdout") and
-    not (ansible_facts['virtualization_type'] is defined and (ansible_facts['virtualization_type'] == "lxc" or ansible_facts['virtualization_type'] == "docker"))
+  when:
+    - "'storage: \"\",' in lxc_info_src.stdout"
+    - not (ansible_facts['virtualization_type'] is defined and (ansible_facts['virtualization_type'] == "lxc" or ansible_facts['virtualization_type'] == "docker"))
 
 - name: Lxc storage list
-  ansible.builtin.shell: lxc storage list | egrep -v '(NAME|---)'
+  ansible.builtin.shell:
+    cmd: "{{ lxd_cmd }} storage list | egrep -v '(NAME|---)'"
   register: lxc_storage_ls
   run_once: true
   ignore_errors: true
@@ -53,7 +59,7 @@
 # https://lxd.readthedocs.io/en/latest/storage/
 - name: Create storage pool  # noqa no-free-form
   ansible.builtin.command: >
-    lxc storage create {{ lxd_storage_pool }} zfs zfs.pool\_name={{ lxd_zpool }}
+    {{ lxd_cmd }} storage create {{ lxd_storage_pool }} zfs zfs.pool\_name={{ lxd_zpool }}
 #    lxc storage create {{ lxd_storage_pool }} zfs source={{ lxd_zpool }}
   register: lxcstor
   args:
@@ -70,7 +76,8 @@
     - "'| ' + lxd_storage_pool + ' |' not in lxc_storage_ls.stdout"
 
 - name: Check default profile
-  ansible.builtin.command: lxc profile show default
+  ansible.builtin.command:
+    cmd: "{{ lxd_cmd }} profile show default"
   register: lxc_profile_show
   ignore_errors: true
   changed_when: false
@@ -78,14 +85,15 @@
 - name: Add storage pool to default profile  # noqa no-changed-when
   ansible.builtin.command:
     cmd: >
-      lxc profile device add default root disk path=/ pool={{ lxd_storage_pool }}
+      {{ lxd_cmd }} profile device add default root disk path=/ pool={{ lxd_storage_pool }}
   when:
     not (lxd_storage_pool in lxc_profile_show.stdout) and
     lxd_storage_backend == 'zfs' and
     not (ansible_facts['virtualization_type'] is defined and (ansible_facts['virtualization_type'] == "lxc" or ansible_facts['virtualization_type'] == "docker"))
 
 - name: Check network
-  ansible.builtin.command: lxc network list
+  ansible.builtin.command:
+    cmd: "{{ lxd_cmd }} network list"
   register: lxc_network_list
   ignore_errors: true
   changed_when: false
@@ -95,8 +103,20 @@
     var: lxc_network_list
     verbosity: 1
 
+- name: Incus | default network
+  when:
+    - lxd_cmd == 'incus'
+    - "'incusbr0' not in lxc_network_list.stdout"
+  block:
+    - name: Create incusbr0
+      ansible.builtin.command:  # noqa no-changed-when
+        cmd: "incus network create incusbr0"
+    - name: Add incusbr0 to default profile
+      ansible.builtin.command:  # noqa no-changed-when
+        cmd: "incus profile device add default eth0 nic name=eth0 network=incusbr0"
+
 - name: List existing lxc images
-  ansible.builtin.command: "lxc image list"
+  ansible.builtin.command: "{{ lxd_cmd }} image list -c L"
   changed_when: false
   register: imagelist
 - name: Pre copy lxc images
@@ -108,11 +128,11 @@
   with_items: "{{ lxd_preloadimages }}"
 
 - name: List existing lxc images
-  ansible.builtin.command: "lxc image list"
+  ansible.builtin.command: "{{ lxd_cmd }} image list"
   changed_when: false
   register: imagelist2
 - name: List existing lxc instances
-  ansible.builtin.command: "lxc list"
+  ansible.builtin.command: "{{ lxd_cmd }} list"
   changed_when: false
   register: lxclist2
 
@@ -134,7 +154,8 @@
         template: "{{ outer_item.template | default('') }}"
         publishalias: "{{ outer_item.publishalias | default('') }}"
         privileged: "{{ outer_item.privileged | default('') }}"
-        shellcmds: "{{ outer_item.shellcmds | default('') }}"
+        shellcmds: "{{ outer_item.shellcmds | default([]) }}"
+        files: "{{ outer_item.files | default([]) }}"
       with_items: "{{ lxd_preconfigure }}"
       loop_control:
         loop_var: outer_item
