@@ -114,6 +114,11 @@ jobs:
           sudo ls -la /var/lib/lxd/networks/
         if: ${{ always() }}
         continue-on-error: true
+      - name: After script - zfs
+        run: |
+          sudo zfs list
+        if: ${{ always() }}
+        continue-on-error: true
       - name: After script - incus
         run: |
           sudo incus info
