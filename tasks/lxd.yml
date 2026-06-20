@@ -1,18 +1,10 @@
 ---
 
-- name: Ubuntu<20.04 | ensure lxd service is started and enabled
+- name: Ensure service is started and enabled
   ansible.builtin.service:
-    name: lxd
+    name: "{{ lxdconfigure_svc }}"
     state: started
     enabled: yes
-  when: (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] | int < 20)
-
-- name: Ubuntu>=20.04 | ensure snap.lxd service is started and enabled
-  ansible.builtin.service:
-    name: snap.lxd.daemon
-    state: started
-    enabled: yes
-  when: (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_major_version'] | int >= 20)
 
 - name: Lxc info
   ansible.builtin.command:
