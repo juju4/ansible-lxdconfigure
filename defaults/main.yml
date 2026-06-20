@@ -11,7 +11,7 @@ lxd_zpool: lxd_tank
 lxdconfigure_init: "--storage-backend {{ lxd_storage_backend }} --storage-create-loop 16 --storage-pool {{ lxd_storage_pool }}"
 
 lxd_preloadimages:
-  - { i: 'ubuntu:26.04', alias: 'ubuntu-20.04-nopython' }
+  - { i: 'images:ubuntu/resolute/amd64', alias: 'ubuntu-26.04-nopython' }
   # - { i: 'images:centos/8/amd64', alias: 'centos-8-nossh' }
   - { i: 'images:fedora/44/amd64', alias: 'fedora-44-nossh' }
   # - { i: 'images:debian/buster/amd64', alias: 'debian-buster-nossh' }
