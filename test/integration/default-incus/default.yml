@@ -6,7 +6,7 @@
     lxd_cmd: incus
     # lxd_preloadimages:
     lxd_preloadimages:
-      - { i: 'ubuntu:26.04', alias: 'ubuntu-26.04-nopython' }
+      - { i: 'images:ubuntu/resolute/amd64', alias: 'ubuntu-26.04-nopython' }
     lxd_preconfigure: []
     ## must be different than lxc host if relevant
     lxd_bridgeconf_ipv4_addr: "10.252.10.1"
