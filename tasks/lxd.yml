@@ -39,6 +39,23 @@
   when:
     - "'storage: \"\",' in lxc_info_src.stdout"
     - not (ansible_facts['virtualization_type'] is defined and (ansible_facts['virtualization_type'] == "lxc" or ansible_facts['virtualization_type'] == "docker"))
+    - lxc_cmd == 'lxc'
+
+- name: Configure incus daemon
+  ansible.builtin.command: "incus admin init --auto {{ lxdconfigure_init }}"
+  register: incusinit
+  args:
+    creates: "/var/lib/incus/disks/{{ lxd_storage_pool }}.img"
+  changed_when:
+    - incusinit.rc == 0
+    - "incusinit.stderr is not defined or 'Error: Storage has already been configured' not in incusinit.stderr"
+  failed_when:
+    - incusinit.rc != 0
+    - "incusinit.stderr is not defined or 'Error: Storage has already been configured' not in incusinit.stderr"
+  when:
+    - "'storage: \"\",' in lxc_info_src.stdout"
+    - not (ansible_facts['virtualization_type'] is defined and (ansible_facts['virtualization_type'] == "lxc" or ansible_facts['virtualization_type'] == "docker"))
+    - lxc_cmd == 'incus'
 
 - name: Lxc storage list
   ansible.builtin.shell:
