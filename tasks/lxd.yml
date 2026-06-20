@@ -59,7 +59,7 @@
 
 - name: Lxc storage list
   ansible.builtin.shell:
-    cmd: "{{ lxd_cmd }} storage list | egrep -v '(NAME|---)'"
+    cmd: "{{ lxd_cmd }} storage list 2>&1 | egrep -v '(NAME|---)'"
   register: lxc_storage_ls
   run_once: true
   ignore_errors: true
