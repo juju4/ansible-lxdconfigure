@@ -1,7 +1,7 @@
-[![Actions Status - Master](https://github.com/juju4/ansible-lxdconfigure/workflows/AnsibleCI/badge.svg)](https://github.com/juju4/ansible-lxdconfigure/actions?query=branch%3Amaster)
-[![Actions Status - Devel](https://github.com/juju4/ansible-adduser/workflows/AnsibleCI/badge.svg?branch=devel)](https://github.com/juju4/ansible-adduser/actions?query=branch%3Adevel)
-
 # LXD containers pre-configuration ansible role
+
+[![Actions Status - Main](https://github.com/juju4/ansible-lxdconfigure/workflows/AnsibleCI/badge.svg)](https://github.com/juju4/ansible-lxdconfigure/actions?query=branch%3Amain)
+[![Actions Status - Devel](https://github.com/juju4/ansible-adduser/workflows/AnsibleCI/badge.svg?branch=devel)](https://github.com/juju4/ansible-adduser/actions?query=branch%3Adevel)
 
 Ansible role to pre-copy images and eventually pre-configure some. Supports lxd and incus.
 
